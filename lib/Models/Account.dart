@@ -1,32 +1,39 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
 class Account extends ChangeNotifier {
-  String name = "" ;
-  String phone = "" ;
-  String email ="" ;
-  String password ="" ;
+  String name = "";
+  String phone = "";
+  String email = "";
+  String password = "";
 
-
- late  final UserCredential  credential ;
+  bool isCreated = false;
+  bool isLogin = false;
+  late final UserCredential credential;
 
 // Account({this.name="",this.phone = "",required this.email,required this.password}){
 // }
 
-
-  void signInWithEmailAndPassword(String email, String password) async {
+  Future<String> signInWithEmailAndPassword(
+      String email, String password) async {
+    isLogin = false;
     try {
-       credential = await FirebaseAuth.instance
+      credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       print(credential.user!.email);
+
+      isLogin = true;
+      return "Login Successful";
+
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+         return 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+          return 'Wrong password provided for that user.';
       }
     }
+
+    return "Finished";
   }
 
   Future<bool> isExists(String email) async {
@@ -43,8 +50,9 @@ class Account extends ChangeNotifier {
     }
   }
 
-  Future<bool> createUserWithEmailAndPassword(
+  Future<String> createUserWithEmailAndPassword(
       String email, String password) async {
+    isCreated = false;
     try {
       //Create the account
       final credential =
@@ -58,17 +66,24 @@ class Account extends ChangeNotifier {
         User? user = FirebaseAuth.instance.currentUser!;
         await user.sendEmailVerification();
       }
-
-      return true;
+      isCreated = true;
+      return 'Send verification email. Look for the verification email in your inbox and click the link in that email. A confirmation message will appear in your web browser.';
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        return 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        return 'The account already exists for that email.';
       }
     } catch (e) {
-      print(e);
+      return 'another error!.';
     }
-    return false;
+
+    return 'finished';
   }
+
+  void logout() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+
 }
