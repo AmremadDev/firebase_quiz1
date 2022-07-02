@@ -9,31 +9,30 @@ class Account extends ChangeNotifier {
 
   bool isCreated = false;
   bool isLogin = false;
-  late final UserCredential credential;
+  late UserCredential credential;
 
-// Account({this.name="",this.phone = "",required this.email,required this.password}){
-// }
-
-  Future<String> signInWithEmailAndPassword(
+  Future<String?> signInWithEmailAndPassword(
       String email, String password) async {
     isLogin = false;
     try {
       credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      print(credential.user!.email);
 
+      // check Verification
+      if (credential.user!.emailVerified == false) {
+        return "You have not verified your account";
+      }
       isLogin = true;
-      return "Login Successful";
 
+      return "Login Successful";
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-         return 'No user found for that email.';
+        return 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-          return 'Wrong password provided for that user.';
+        return 'Wrong password provided for that user.';
       }
     }
-
-    return "Finished";
+    return null;
   }
 
   Future<bool> isExists(String email) async {
@@ -84,6 +83,4 @@ class Account extends ChangeNotifier {
   void logout() async {
     await FirebaseAuth.instance.signOut();
   }
-
-
 }

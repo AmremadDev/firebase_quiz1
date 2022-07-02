@@ -42,7 +42,6 @@ class SignIn extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-
                       _buildEmailField(context),
                       _buildPasswordField(context),
                       _buildCreateButton(context),
@@ -78,7 +77,6 @@ class SignIn extends StatelessWidget {
                   child: IconButton(
                     onPressed: () {},
                     icon: Image.asset("images/google.png"),
-
                     color: Color.fromARGB(255, 63, 50, 50),
                   ),
                 ),
@@ -90,7 +88,6 @@ class SignIn extends StatelessWidget {
                   child: IconButton(
                     onPressed: () {},
                     icon: Image.asset("images/facebook.png"),
-     
                     color: Colors.white,
                   ),
                 ),
@@ -126,8 +123,6 @@ class SignIn extends StatelessWidget {
       ),
     );
   }
-
-
 
   TextFormField _buildEmailField(BuildContext context) {
     Account model = Provider.of(context);
@@ -216,25 +211,20 @@ class SignIn extends StatelessWidget {
           onPressed: () async {
             FormState? formdata = formstate.currentState!;
 
-            print(formdata.validate());
-
             if (formdata.validate() == true) {
               formstate.currentState!.save();
 
-              String result = await context
+              String? result = await context
                   .read<Account>()
                   .signInWithEmailAndPassword(model.email, model.password);
 
-
-              print(context.read<Account>().isLogin == true);
               if (context.read<Account>().isLogin == true) {
-
                 Navigator.of(context)
                     .pushReplacement(MaterialPageRoute(builder: (context) {
                   return HomePage();
                 }));
               } else {
-                dialogbox(context, 'Error', result, type: DialogType.ERROR);
+                dialogbox(context, 'Error', result!, type: DialogType.ERROR);
               }
             }
           },
